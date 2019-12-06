@@ -1,0 +1,1456 @@
+# -*- coding: cp936 -*-
+import os
+import sys
+import subprocess
+import time
+from xlrd import open_workbook
+import xlrd
+import xlsxwriter
+import xlwt
+from xlwt import Workbook
+import glob
+import serial
+import threading
+import shutil
+sdir=os.getcwd()
+zadir=str(glob.glob(sdir + "/" + "report.xlsx"))
+cutt=zadir.split("/")
+beforee=cutt[-1]
+finals=beforee.replace("']", "")
+global m
+m=4
+
+if finals==str("report.xlsx"):
+    os.remove("report.xlsx")
+
+else:
+    print("")
+
+
+def sendCommand(com):
+    ser=serial.Serial('COM'+COM, baudrate=9600, timeout=.1, rtscts=0)
+    ser.write(com+"\r\n")
+    time.sleep(2)
+    ret = []
+    while ser.inWaiting() > 0:
+            msg = ser.readline().strip()
+            msg = msg.replace("\r","")
+            msg = msg.replace("\n","")
+            if msg!="":
+                ret.append(msg)
+			
+    return ret
+    ser.close()
+    
+#######Fuction to register on to the 4G network###################
+def airplane():
+    try:
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        device.shell("input keyevent KEYCODE_HOME")
+        vc.dump()
+        for i in range(6):      
+            if vc.findViewWithText("Settings"):
+                vc.dump()
+                vc.findViewWithText("Settings").touch()
+                vc.dump()
+                if vc.findViewWithText("Wireless & networks"):
+                    vc.dump()
+                    vc.findViewWithText("Wireless & networks").touch()
+                    vc.dump()
+                elif vc.findViewWithText("Mobile network"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile network").touch()
+                    vc.dump()
+                vc.findViewById("android:id/switch_widget").touch()
+                vc.dump()
+                time.sleep(3)
+                vc.findViewById("android:id/switch_widget").touch()
+                vc.dump()
+                device.shell("input keyevent KEYCODE_HOME")
+                vc.dump()
+                break
+            else:
+                device.shell("input swipe 876 856 102 949 ")
+                vc.dump()
+                time.sleep(1)
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("Settings"):
+                    vc.dump()
+                    vc.findViewWithText("Settings").touch()
+                    vc.dump()
+                    if vc.findViewWithText("Wireless & networks"):
+                        vc.dump()
+                        vc.findViewWithText("Wireless & networks").touch()
+                        vc.dump()
+                    elif vc.findViewWithText("Mobile network"):
+                        vc.dump()
+                        vc.findViewWithText("Mobile network").touch()
+                        vc.dump()
+                    vc.findViewById("android:id/switch_widget").touch()
+                    vc.dump()
+                    time.sleep(3)
+                    vc.findViewById("android:id/switch_widget").touch()
+                    vc.dump()
+                    device.shell("input keyevent KEYCODE_HOME")
+                    vc.dump()
+
+                break
+    except Exception as ex:
+        print(ex)
+           
+def Networkreset():
+    try:
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        if vc.findViewWithText("MAI TEST"):
+            vc.dump()
+            if vc.findViewById("android:id/button1"):
+                vc.dump()
+                time.sleep(1)
+                vc.findViewById("android:id/button1").touch()
+                vc.dump()
+        device.shell("input keyevent KEYCODE_HOME")
+        vc.dump()
+        for i in range(6):      
+            if vc.findViewWithText("Settings"):
+                vc.dump()
+                vc.findViewWithText("Settings").touch()
+                vc.dump()
+                device.shell("input swipe 550 1865 550 388")
+                vc.dump()
+                vc.findViewWithText("System & updates").touch()
+                vc.dump()
+                vc.findViewWithText("Reset").touch()
+                vc.dump()
+                vc.findViewWithText("Reset network settings").touch()
+                vc.dump()
+                if vc.findViewById("com.android.settings:id/usb_radiobutton"):
+                    vc.dump()
+                    vc.findViewById("com.android.settings:id/usb_radiobutton").touch()
+                    vc.dump()
+                    vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                    vc.dump()
+                    vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                    vc.dump()    
+                else:
+                    vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                    vc.dump()
+                    vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                    vc.dump()  
+                break
+            else:
+                device.shell("input swipe 876 856 102 949 ")
+                vc.dump()
+                time.sleep(1)
+                if vc.findViewWithText("Settings"):
+                    vc.dump()
+                    vc.findViewWithText("Settings").touch()
+                    vc.dump()
+                    device.shell("input swipe 550 1865 550 388")
+                    vc.dump()
+                    
+                    vc.findViewWithText("System & updates").touch()
+                    vc.dump()
+                    vc.findViewWithText("Reset").touch()
+                    vc.dump()
+                    vc.findViewWithText("Reset network settings").touch()
+                    vc.dump()
+                    if vc.findViewById("com.android.settings:id/usb_radiobutton"):
+                        vc.dump()
+                        vc.findViewById("com.android.settings:id/usb_radiobutton").touch()
+                        vc.dump()
+                        vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                        vc.dump()
+                        vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                        vc.dump()    
+                    else:
+                        vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                        vc.dump()
+                        vc.findViewWithText("RESET NETWORK SETTINGS").touch()
+                        vc.dump()    
+                break
+            
+        os.system("adb shell input keyevent KEYCODE_HOME")
+        os.system("adb shell pm clear com.android.settings")
+    except Exception as ex:
+        print(ex)
+
+
+def radio_log():
+    cmd=os.system("adb logcat -b radio -v time >> ril.txt")   
+    return cmd
+def logcat():
+    cmd = os.system("adb logcat -v time >> logcat.txt")
+    return cmd
+
+def kill_server():
+    os.system("adb kill-server")
+    cmd = os.system("exit")
+    return cmd
+def start_server():
+    os.system("adb start-server")
+    cmd = os.system("exit")
+    return cmd
+def capture():
+    os.system("adb shell input keyevent KEYCODE_WAKEUP")
+    time.sleep(1)
+    os.system("adb shell pm clear com.android.contacts")
+    time.sleep(1)
+    os.system("adb shell input keyevent KEYCODE_HOME")
+    from com.dtmilano.android.viewclient import ViewClient
+    device, serialno=ViewClient.connectToDeviceOrExit()
+    vc=ViewClient(device=device, serialno=serialno)
+    vc.findViewWithContentDescription("Phone").touch()
+    vc.dump()
+    time.sleep(1)
+    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Incall.png")
+    time.sleep(1)
+    os .system("adb pull /sdcard/Automation/"+PLMN+"Incall.png "+fin+PLMN+"Incall.png" )
+    time.sleep(1)
+    ###############TakeScreenshot
+    os.system("adb shell input keyevent KEYCODE_HOME")  
+
+def Setting():
+    os.system("adb shell input keyevent KEYCODE_HOME")
+    time.sleep(1)
+    for i in range(4):
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        if vc.findViewWithText("Settings"):
+            vc.dump()
+            vc.findViewWithText("Settings").touch()
+            vc.dump()
+            if vc.findViewWithText("Wireless & networks"):
+                vc.dump()
+                vc.findViewWithText("Wireless & networks").touch()
+                vc.dump()
+                if vc.findViewWithText("Mobile network"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile network").touch()
+                    vc.dump()
+                else:
+                    print("")
+
+            elif vc.findViewWithText("Mobile network"):
+                vc.dump()
+                vc.findViewWithText("Mobile network").touch()
+                vc.dump()
+                if vc.findViewWithText("Mobile data"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile data").touch()
+                    vc.dump()
+                else:
+                    print("")
+    
+            break
+        else:
+            os.system("adb shell input swipe 876 856 102 949 ")
+            time.sleep(1)
+            from com.dtmilano.android.viewclient import ViewClient
+            device, serialno=ViewClient.connectToDeviceOrExit()
+            vc=ViewClient(device=device, serialno=serialno)
+            if vc.findViewWithText("Settings"):
+                vc.dump()
+                vc.findViewWithText("Settings").touch()
+            vc.dump()
+            if vc.findViewWithText("Wireless & networks"):
+                vc.dump()
+                vc.findViewWithText("Wireless & networks").touch()
+                vc.dump()
+                if vc.findViewWithText("Mobile network"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile network").touch()
+                    vc.dump()
+                else:
+                    print("")
+
+            elif vc.findViewWithText("Mobile network"):
+                vc.dump()
+                vc.findViewWithText("Mobile network").touch()
+                vc.dump()
+                if vc.findViewWithText("Mobile data"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile data").touch()
+                    vc.dump()
+                else:
+                    print("")
+                
+            break        
+
+    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Settings.png")
+    time.sleep(1)
+    os .system("adb pull /sdcard/Automation/"+PLMN+"Settings.png "+fin+PLMN+"Settings.png" )
+    device.shell("settings put system hw_volte_user_switch_0 1")
+    os.system("adb shell input keyevent KEYCODE_HOME")
+    
+def check():
+    print("check")
+    os.system("adb shell cmd statusbar expand-notifications")
+
+    from com.dtmilano.android.viewclient import ViewClient
+
+    device, serialno=ViewClient.connectToDeviceOrExit()
+    vc=ViewClient(device=device, serialno=serialno)
+
+    Icon=vc.findViewsWithAttribute("resource-id","com.android.systemui:id/mobile_combo_card")
+    time.sleep(1)
+    vc.dump()
+    Mode=(Icon[0].getContentDescription())
+    List=list(Mode)
+    L1=List[0]
+    L2=List[1]
+    global String
+    String= L1+ L2
+    print(String)
+    Split=Mode.split(' ')
+    
+    L3=Split[1]
+    
+    L4=Split[2]
+    global combine
+    combine=L3+" " + L4
+    print(combine)
+          
+    sets=String+" " + combine
+    print(sets)
+    
+    global gets
+    gets=String+" "+ L3
+    print(gets)
+
+
+
+def refresh():
+    try:       
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        device.shell("input keyevent KEYCODE_HOME")
+        vc.dump()
+        for i in range(6):      
+            if vc.findViewWithText("Settings"):
+                vc.dump()
+                vc.findViewWithText("Settings").touch()
+                vc.dump()
+                if vc.findViewWithText("Wireless & networks"):
+                    vc.dump()
+                    vc.findViewWithText("Wireless & networks").touch()
+                    vc.dump()
+                elif vc.findViewWithText("Mobile network"):
+                    vc.dump()
+                    vc.findViewWithText("Mobile network").touch()
+                    vc.dump()
+                vc.findViewById("android:id/switch_widget").touch()
+                vc.dump()
+                time.sleep(3)
+                vc.findViewById("android:id/switch_widget").touch()
+                vc.dump()
+                device.shell("input keyevent KEYCODE_HOME")
+                vc.dump()
+                break
+            else:
+                device.shell("input swipe 876 856 102 949 ")
+                vc.dump()
+                time.sleep(1)
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("Settings"):
+                    vc.dump()
+                    vc.findViewWithText("Settings").touch()
+                    vc.dump()
+                    if vc.findViewWithText("Wireless & networks"):
+                        vc.dump()
+                        vc.findViewWithText("Wireless & networks").touch()
+                        vc.dump()
+                    elif vc.findViewWithText("Mobile network"):
+                        vc.dump()
+                        vc.findViewWithText("Mobile network").touch()
+                        vc.dump()
+                    vc.findViewById("android:id/switch_widget").touch()
+                    vc.dump()
+                    time.sleep(3)
+                    vc.findViewById("android:id/switch_widget").touch()
+                    vc.dump()
+                    device.shell("input keyevent KEYCODE_HOME")
+                    vc.dump()
+                break
+
+        global t1
+        t1=threading.Thread(target=radio_log)
+        t1.start()
+        time.sleep(3)
+        global file
+        file=open("ril.txt", "r")
+        time.sleep(1)
+        global lines
+        lines= file.read()
+        if "Notify IMS state is REGISTERED" in lines:
+            sheet1.write(j,0,PLMN)
+            sheet1.write(j,1,"PASS")
+            time.sleep(1)
+            os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Registration.png")
+            time.sleep(1)
+            os .system("adb pull /sdcard/Automation/"+PLMN+"Registration.png "+fin+PLMN+"Registration.png" )
+            time.sleep(1)
+        else:
+            sheet1.write(j,0,PLMN)
+            sheet1.write(j,1,"FAIL")
+            time.sleep(1)
+            os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Registration.png")
+            time.sleep(1)
+            os .system("adb pull /sdcard/Automation/"+PLMN+"Registration.png "+fin+PLMN+"Registration.png" )
+            time.sleep(1)
+        
+    except Exception as ex:
+        print(ex)
+    
+def FailRegister():
+    try:
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        vc.findViewById("android:id/button1").touch()
+        vc.dump()
+        os.system("adb shell input keyevent KEYCODE_HOME")
+        time.sleep(2)
+        os.system("adb shell pm clear com.android.phone")
+        time.sleep(1)
+        print(sendCommand("AT+CFUN=0"))
+        time.sleep(3)
+        print(sendCommand("AT+CFUN=1"))
+        time.sleep(3)
+        print(sendCommand("AT+CFUN=1,1"))
+        time.sleep(45)
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        if vc.findViewWithText("MAI TEST"):
+            vc.dump()
+            if vc.findViewById("android:id/button1"): 
+                vc.dump()
+                time.sleep(1)
+                vc.findViewById("android:id/button1").touch()
+                vc.dump()
+                print("clicked")
+                check()
+                if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                    os.system("adb shell cmd statusbar collapse")
+                    refresh()
+                
+            else:
+                print("")
+
+        else:
+            for i in range(4):
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("Settings"):
+                    vc.dump()
+                    vc.findViewWithText("Settings").touch()
+                    vc.dump()
+                    if vc.findViewWithText("Wireless & networks"):
+                        vc.dump()
+                        vc.findViewWithText("Wireless & networks").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Mobile network"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile network").touch()
+                            vc.dump()
+                        else:
+                            print("")
+
+                    elif vc.findViewWithText("Mobile network"):
+                        vc.dump()
+                        vc.findViewWithText("Mobile network").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Mobile data"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile data").touch()
+                            vc.dump()
+                        else:
+                            print("")
+    
+                    break
+                else:
+                    os.system("adb shell input swipe 876 856 102 949 ")
+                    time.sleep(1)
+                    from com.dtmilano.android.viewclient import ViewClient
+                    device, serialno=ViewClient.connectToDeviceOrExit()
+                    vc=ViewClient(device=device, serialno=serialno)
+                    if vc.findViewWithText("Settings"):
+                        vc.dump()
+                        vc.findViewWithText("Settings").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Wireless & networks"):
+                            vc.dump()
+                            vc.findViewWithText("Wireless & networks").touch()
+                            vc.dump()
+                            if vc.findViewWithText("Mobile network"):
+                                vc.dump()
+                                vc.findViewWithText("Mobile network").touch()
+                                vc.dump()
+                            else:
+                                print("")
+
+                        elif vc.findViewWithText("Mobile network"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile network").touch()
+                            vc.dump()
+                            if vc.findViewWithText("Mobile data"):
+                                vc.dump()
+                                vc.findViewWithText("Mobile data").touch()
+                                vc.dump()
+                            else:
+                                print("")
+                            
+                        break        
+            
+            from com.dtmilano.android.viewclient import ViewClient
+            device, serialno=ViewClient.connectToDeviceOrExit()
+            vc=ViewClient(device=device, serialno=serialno)
+            vc.findViewWithText("Network provider").touch()
+            time.sleep(2)
+            vc.dump()
+            vc.findViewById("android:id/switch_widget").touch()
+            vc.dump()
+            vc.findViewById("android:id/button1").touch()
+            time.sleep(50)
+            vc.dump()
+            check() 
+            if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                
+                os.system("adb shell cmd statusbar collapse")
+                refresh()
+
+            else:
+                os.system("adb shell cmd statusbar collapse")
+                time.sleep(1)
+                if vc.findViewWithText(u"中国联通 4G"):
+                    vc.dump()
+                    vc.findViewWithText(u"中国联通 4G").touch()
+                    time.sleep(2)
+                    vc.dump()
+                
+                    if vc.findViewWithText("Network registration failed"):
+                        vc.dump()
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        
+                        sheet1.write(j,0,PLMN)
+                     
+                        sheet1.write(j,1,"FAIL")
+                        
+                        time.sleep(1)
+                        os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Registration.png")
+                        time.sleep(1)
+                        os .system("adb pull /sdcard/Automation/"+PLMN+"Registration.png "+fin+PLMN+"Registration.png" )
+                        time.sleep(1)
+
+                    elif vc.findViewWithText("MAI TEST"):
+                        vc.dump()
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        refresh()
+                
+
+                elif vc.findViewWithText(u"中国联通 LTE"):
+                    vc.dump()
+                    vc.findViewWithText(u"中国联通 LTE").touch()
+                    time.sleep(2)
+                    vc.dump()
+                    if vc.findViewWithText("Network registration failed"):
+                        vc.dump()
+                        
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        sheet1.write(j,0,PLMN)                    
+                        time.sleep(1)
+                        os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"Registration.png")
+                        time.sleep(1)
+                        os .system("adb pull /sdcard/Automation/"+PLMN+"Registration.png "+fin+PLMN+"Registration.png" )
+                        time.sleep(1)
+
+                    elif vc.findViewWithText("MAI TEST"):
+                        vc.dump()
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        refresh()
+                
+            
+    except Exception as ex:
+        print(ex)
+
+def PassRegister():
+    try:
+        vc.findViewById("android:id/button1").touch()
+        vc.dump()
+        refresh()
+    except Exception as ex:
+        print(ex)
+
+    
+def Network():
+    try:
+        from com.dtmilano.android.viewclient import ViewClient
+        device, serialno=ViewClient.connectToDeviceOrExit()
+        vc=ViewClient(device=device, serialno=serialno)
+        if vc.findViewWithText("MAI TEST"):
+            vc.dump()
+            if vc.findViewById("android:id/button1"):
+                vc.dump()
+                time.sleep(1)
+           
+                vc.findViewById("android:id/button1").touch()
+                vc.dump()
+                print("clicked")
+            else:
+                time.sleep(15)
+                
+        else:
+            print""
+        Setting()
+        check()
+        
+        if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):    
+            os.system("adb shell cmd statusbar collapse")
+            refresh()
+            
+        elif String==str("3G") or combine==str("No signal") or sets==str("4G No signal"):
+            time.sleep(1)               
+            os.system("adb shell cmd statusbar collapse")           
+            for i in range(4):
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("Settings"):
+                    vc.dump()
+                    vc.findViewWithText("Settings").touch()
+                    vc.dump()
+                    if vc.findViewWithText("Wireless & networks"):
+                        vc.dump()
+                        vc.findViewWithText("Wireless & networks").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Mobile network"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile network").touch()
+                            vc.dump()
+                        else:
+                            print("")
+
+                    elif vc.findViewWithText("Mobile network"):
+                        vc.dump()
+                        vc.findViewWithText("Mobile network").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Mobile data"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile data").touch()
+                            vc.dump()
+                        else:
+                            print("")
+    
+                    break
+                else:
+                    os.system("adb shell input swipe 876 856 102 949 ")
+                    time.sleep(1)
+                    from com.dtmilano.android.viewclient import ViewClient
+                    device, serialno=ViewClient.connectToDeviceOrExit()
+                    vc=ViewClient(device=device, serialno=serialno)
+                    if vc.findViewWithText("Settings"):
+                        vc.dump()
+                        vc.findViewWithText("Settings").touch()
+                        vc.dump()
+                        if vc.findViewWithText("Wireless & networks"):
+                            vc.dump()
+                            vc.findViewWithText("Wireless & networks").touch()
+                            vc.dump()
+                            if vc.findViewWithText("Mobile network"):
+                                vc.dump()
+                                vc.findViewWithText("Mobile network").touch()
+                                vc.dump()
+                            else:
+                                print("")
+
+                        elif vc.findViewWithText("Mobile network"):
+                            vc.dump()
+                            vc.findViewWithText("Mobile network").touch()
+                            vc.dump()
+                            if vc.findViewWithText("Mobile data"):
+                                vc.dump()
+                                vc.findViewWithText("Mobile data").touch()
+                                vc.dump()
+                        else:
+                            print("")
+                
+                        break        
+
+            from com.dtmilano.android.viewclient import ViewClient
+            device, serialno=ViewClient.connectToDeviceOrExit()
+            vc=ViewClient(device=device, serialno=serialno)
+            vc.findViewWithText("Network provider").touch()        
+            vc.dump()
+            
+            try:
+                if not vc.findViewWithText("Automatic") and not vc.findViewWithText("Disable auto-select"):
+                    time.sleep(65)
+                    vc.dump()
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        refresh()
+                else:
+                    time.sleep(1)
+                    if vc.findViewWithText(u"中国联通 4G"):
+                        vc.dump()
+                        vc.findViewWithText(u"中国联通 4G").touch()
+                        time.sleep(8)
+                        vc.dump()   
+                        
+                        if not vc.findViewWithText("MAI TEST"):
+                            time.sleep(32)
+                            vc.dump()
+                            
+                            
+                        if vc.findViewWithText("MAI TEST"):
+                            vc.dump()
+                            PassRegister()
+                            
+                        elif vc.findViewWithText("Network registration failed"):
+                            vc.dump()
+                            FailRegister()
+                            
+                    elif vc.findViewWithText(u"中国联通 LTE"):
+                        vc.dump()
+                        vc.findViewWithText(u"中国联通 LTE").touch()
+                        time.sleep(8)
+                        vc.dump()
+
+                        if not vc.findViewWithText("MAI TEST"):
+                            time.sleep(32)
+                            vc.dump()
+                            
+
+                        if vc.findViewWithText("MAI TEST"):
+                            vc.dump()
+                            PassRegister()
+
+                        elif vc.findViewWithText("Network registration failed"):
+                            vc.dump()
+                            FailRegister()
+                        
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        refresh()
+
+                    else:
+                        sheet1.write(j,0,PLMN)
+                        sheet1.write(j,1,"FAIL")
+                
+            except Exception as ex:
+                print(ex)
+
+                
+                    ##############################################
+                        
+           
+
+                    #######################################################
+               
+            try:
+
+                if vc.findViewWithText("Automatic"):
+                    time.sleep(2)
+                    vc.dump()
+                    
+                    vc.findViewById("android:id/switch_widget").touch()
+                    vc.dump()
+                    vc.findViewById("android:id/button1").touch()
+                    time.sleep(65)
+                    vc.dump()
+                    
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        refresh()
+                        
+                    else:
+                        
+                        time.sleep(1)
+                        if vc.findViewWithText(u"中国联通 4G"):
+                            vc.dump()
+                            vc.findViewWithText(u"中国联通 4G").touch()
+                            time.sleep(8)
+                            
+                            if not vc.findViewWithText("MAI TEST") :
+                                time.sleep(32)
+                                vc.dump()
+                                
+                                
+                            if vc.findViewWithText("MAI TEST"):
+                                vc.dump()
+                                PassRegister()
+                                
+                            elif vc.findViewWithText("Network registration failed"):
+                                vc.dump()
+                                FailRegister()
+                                
+                            
+                            
+                        elif vc.findViewWithText(u"中国联通 LTE"):
+                            vc.dump()
+                            
+                           
+                            vc.findViewWithText(u"中国联通 LTE").touch()
+                            time.sleep(8)
+                            vc.dump()
+                            
+
+                            if not vc.findViewWithText("MAI TEST"):
+                                vc.dump()
+                                time.sleep(32)
+
+                            if vc.findViewWithText("MAI TEST"):
+                                vc.dump()
+                                PassRegister()
+
+                            
+                            elif vc.findViewWithText("Network registration failed"):
+                                vc.dump()
+                                FailRegister()
+
+                        
+                        check()
+                        os.system("adb shell cmd statusbar collapse")
+                        if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                            refresh()
+
+                        else:
+                            sheet1.write(j,0,PLMN)
+                            sheet1.write(j,1,"FAIL")
+
+            except Exception as ex:
+                print(ex)
+            
+
+
+            try:
+                if vc.findViewWithText("Disable auto-select"):
+                    time.sleep(1)
+                    vc.dump()
+                    
+                    
+                    vc.findViewById("android:id/button1").touch()
+                    time.sleep(65)
+                    vc.dump()
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        refresh()
+
+                    else:
+                        
+                        time.sleep(1)
+                        if vc.findViewWithText(u"中国联通 4G"):
+                            vc.dump()
+                            vc.findViewWithText(u"中国联通 4G").touch()
+                            time.sleep(8)
+                            vc.dump()
+                            
+                            if not vc.findViewWithText("MAI TEST") :
+                                time.sleep(32)
+                                vc.dump()
+                                
+                                
+                            if vc.findViewWithText("MAI TEST"):
+                                vc.dump()
+                                PassRegister()
+                                
+                            elif vc.findViewWithText("Network registration failed"):
+                                vc.dump()
+                                FailRegister()
+                
+
+
+                        elif vc.findViewWithText(u"中国联通 LTE"):
+                            vc.dump()
+                            vc.findViewWithText(u"中国联通 LTE").touch()
+                            
+                            time.sleep(40)
+                            vc.dump()
+                           
+
+                            if not vc.findViewWithText("MAI TEST"):
+                                time.sleep(32)
+                                vc.dump()
+                                
+
+                            
+                            if vc.findViewWithText("MAI TEST"):
+                                vc.dump()
+                                PassRegister()
+
+                            
+                            elif vc.findViewWithText("Network registration failed"):
+                                vc.dump()
+                                FailRegister()
+
+
+                        check()
+                        os.system("adb shell cmd statusbar collapse")
+                        if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                            refresh()
+
+                        else:
+                            sheet1.write(j,0,PLMN)
+                            sheet1.write(j,1,"FAIL")
+                            
+            except Exception as ex:
+                print(ex)
+                
+            
+    except Exception as ex:
+        print(ex)
+
+
+###########################Call#################################################################################
+
+def Call():
+    
+    try:
+        os.system("adb shell pm clear com.android.phone")
+        time.sleep(9)
+        check()
+        time.sleep(1)
+        os.system("adb shell cmd statusbar collapse")
+        time.sleep(1)
+        if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+            try: 
+                Call="adb shell am start -a android.intent.action.CALL -d tel:" + str(ISDN)
+                output=subprocess.Popen(Call,stdout=subprocess.PIPE).communicate()[0]
+                time.sleep(9)
+                os.system("adb shell input keyevent KEYCODE_ENDCALL")
+                time.sleep(12)
+                airplane()
+                file=open("ril.txt", "r")
+                time.sleep(1)
+                lines= file.read()
+                if "Notify IMS state is REGISTERED" in lines:
+                    Call="adb shell am start -a android.intent.action.CALL -d tel:" + str(ISDN)
+                    output=subprocess.Popen(Call,stdout=subprocess.PIPE).communicate()[0]
+                    time.sleep(11)
+                    global t2
+                    t2=threading.Thread(target=logcat)
+                    t2.start()
+                    time.sleep(4)
+                    global filem
+                    filem=open("logcat.txt", "r")
+                    global liness
+                    liness= filem.read()
+                    if "CallState DIALING -> ACTIVE" in liness and "isVolteCall()" in liness :
+                        time.sleep(1)
+                        os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"call.png")
+                        time.sleep(1)
+                        os .system("adb pull /sdcard/Automation/"+PLMN+"call.png "+fin+PLMN+"call.png" )
+                        time.sleep(6)
+                        os.system("adb shell input keyevent KEYCODE_ENDCALL")
+                        time.sleep(2)
+                        sheet1.write(j,2,"PASS")
+                        capture()
+                    else:
+                        time.sleep(1)
+                        os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"call.png")
+                        time.sleep(1)
+                        os .system("adb pull /sdcard/Automation/"+PLMN+"call.png "+fin+PLMN+"call.png" )
+                        time.sleep(6)
+                        os.system("adb shell input keyevent KEYCODE_ENDCALL")
+                        time.sleep(2)
+                        sheet1.write(j,2,"FAIL")#############Write it in excel
+                        capture()
+                        
+                else:
+                    time.sleep(1)
+                    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"call.png")
+                    time.sleep(1)
+                    os .system("adb pull /sdcard/Automation/"+PLMN+"call.png "+fin+PLMN+"call.png" )
+                    time.sleep(2)
+                    sheet1.write(j,2,"FAIL")#############Write it in excel
+                    capture()
+            except Exception as ex:
+                print(ex)          
+        else:
+            sheet1.write(j,2,"FAIL")
+            capture()
+           
+    except Exception as ex:
+        print(ex)
+    
+###############################################SMS########################################################################
+        
+def SMS():
+    try:   
+        os.system("adb shell pm clear com.android.phone")
+        time.sleep(10)
+        check()
+        os.system("adb shell cmd statusbar collapse")
+        time.sleep(1)
+        if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+            
+            try:   
+                time.sleep(1)
+                os.system("adb shell pm clear com.google.android.apps.messaging")
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithContentDescription("Messages"):
+                    vc.findViewWithContentDescription("Messages").touch()
+                    time.sleep(1)
+                    vc.dump()
+                else:
+                    device.startActivity("com.huawei.android.launcher/com.huawei.android.launcher.unihome.UniHomeLauncher")
+                    time.sleep(1)
+                    vc.dump()
+                    
+                vc.findViewWithContentDescription("Start chat").touch()
+                time.sleep(1)
+                vc.dump()
+                vc.findViewById("com.google.android.apps.messaging:id/recipient_text_view").touch()
+                time.sleep(2)
+                vc.dump()
+                device.shell("input text " + str(ISDN))
+                vc.dump()           
+                time.sleep(3)
+                vc.findViewById("com.google.android.apps.messaging:id/contact_picker_create_group").touch()
+                time.sleep(1)
+                vc.dump()
+                vc.findViewById("com.google.android.apps.messaging:id/compose_message_text").setText("Hi")
+                time.sleep(1)
+                vc.dump()
+                vc.findViewById("com.google.android.apps.messaging:id/send_message_button_container").touch()
+                time.sleep(4)
+                vc.dump()
+                filem=open("logcat.txt", "r")
+                liness= filem.read()
+                
+                if "BugleDataMode: Processing changed messages for 357" in liness or "Done sending SMS message{id:357} conversation{id:50}, status: MANUAL_RETRY" in liness or "process from ProcessSentMessageAction due to sms_send failure with queues:" in liness:
+
+                    sheet1.write(j,3,"FAIL")
+                    time.sleep(1)
+                    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"sms.png")
+                    time.sleep(1)
+                    os .system("adb pull /sdcard/Automation/"+PLMN+"sms.png "+fin+PLMN+"sms.png" )
+                    time.sleep(1)
+                    
+
+                elif "status: SUCCEEDED" in liness:
+                    sheet1.write(j,3,"PASS")
+                    time.sleep(1)
+                    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"sms.png")
+                    time.sleep(1)
+                    os .system("adb pull /sdcard/Automation/"+PLMN+"sms.png "+fin+PLMN+"sms.png" )
+                    time.sleep(1)
+                    
+                else:
+                    sheet1.write(j,3,"FAIL")
+                    time.sleep(1)
+                    os.system("adb shell screencap -p /sdcard/Automation/"+PLMN+"sms.png")
+                    time.sleep(1)
+                    os .system("adb pull /sdcard/Automation/"+PLMN+"sms.png "+fin+PLMN+"sms.png" )
+                    time.sleep(1)
+                    #Take screenshot
+            except Exception as ex:
+                print(ex)
+                
+                
+            time.sleep(1)
+            os.system("adb shell pm clear com.google.android.apps.messaging")
+            time.sleep(1)
+            
+            
+        
+        else:
+            sheet1.write(j,3,"FAIL")
+
+        os.system("adb shell input keyevent KEYCODE_HOME")
+    
+    except Exception as ex:
+        print(ex)
+
+    
+###############Above is the set of fuctions#####################################
+
+def reverse(str):
+    strlist=[]
+    for i in range(len(str)-1):
+        if i%2==0:
+            strlist.append(str[i+1])
+        else:
+            strlist.append(str[i-1])
+    if len(str)%2==0:
+        strlist.append(str[len(str)-2])
+    else:
+        strlist.append(str[len(str)-1])
+    return ''.join(strlist)
+
+
+wb=open_workbook('PLMN.xlsx')
+sheet=wb.sheet_by_index(0)
+rows=sheet.nrows
+coloumn=sheet.ncols
+wb1 = Workbook()
+sheet1 = wb1.add_sheet('Sheet')
+sheet1.write(0, 0, 'PLMN')
+sheet1.write(0, 1, 'IMS Registration')
+sheet1.write(0, 2, 'MO Call over IMS')
+sheet1.write(0,3,'MO SMS')
+cwd=os.getcwd()+'\\Screenshots\\'
+getz=str(cwd.split())
+va=getz.replace("['","")
+fin=va.replace("']","")
+
+from com.dtmilano.android.viewclient import ViewClient
+device, serialno=ViewClient.connectToDeviceOrExit()
+vc=ViewClient(device=device, serialno=serialno)
+
+imsi=raw_input("Enter the IMSI that you want to make call and SMS.....")
+COM=raw_input("Please enetr the PCUI port")
+try:
+    for j in range(0,rows):    
+        PLMN=sheet.cell_value(j,0)
+        first=PLMN    
+        j=j+1
+
+        if "755" in PLMN:
+            mccmnc=PLMN[:5]
+            print("5 digit imsi")
+            newstrg=imsi[5:]
+            
+            inISDN=int("+91" + newstrg)
+            ISDN="+" + str(inISDN)
+            print(ISDN)
+            print(sendCommand("AT^logport=0"))
+            time.sleep(1)
+            print(sendCommand("AT^Modem=1"))
+            time.sleep(1)
+
+            command3='com::send {at+csim=14,"00A40004026FAD";}\n'
+            command4='com::send {at+csim=10,"00B000000B";}\n'
+            command5='com::send {at+csim=18,"00D600000400000102";}\n'
+            command6='com::send {at+csim=14,"00A40004026F07";}\n'
+            command7='com::send {at+csim=10,"00B000000B";}\n'
+            command8='com::send {at+csim=28,"00D600000908'
+            command8+=reverse('9'+ PLMN)
+            command8+='";}\n'
+            commandList=[]
+            commandList.append('com::send {at+csim=14,"00A40004023F00";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append('com::send {at+csim=14,"00A40004027FF0";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append('com::send {at+csim=26,"0020000A083030303030303030";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append(command3)
+            commandList.append('com::recv OK\n')
+                        #commandList.append(command2)
+                        #commandList.append('com::recv OK\n')
+            commandList.append(command5)
+            commandList.append('com::recv OK\n')  
+            commandList.append(command6)
+            commandList.append('com::recv OK\n')
+                        #commandList.append(command5)
+                        #commandList.append('com::recv OK\n')
+            commandList.append(command8)
+            commandList.append('com::recv OK\n')
+            file_object=open("script\csim.tcl","w")
+            file_object.writelines(commandList)
+            file_object.close()
+
+            os.system("ATTv1.05.exe")
+            time.sleep(10)
+            fmod=open("script\csim.log","r")
+            lineIn=fmod.readlines()
+            for strIn in lineIn:
+                strIn=strIn.strip("\n")
+                if strIn.find("ERROR")>0:
+                    print "\n"
+                    print "executeATTScript failed."
+
+                    fmod.close()
+            fmod.close()
+            filx=open("log.txt", "r")
+            linez= filx.read()
+    
+            
+            if str("fail: 1") in linez:
+                sheet1.write(j,0,PLMN)
+                sheet1.write(j,1,"FAIL to write IMSI")
+                sheet1.write(j,2,"FAIL to write IMSI")
+                sheet1.write(j,3,"FAIL to write IMSI")
+                wb1.save('report.xls')
+
+            elif str("pass") in linez:
+                os.system("adb shell pm clear com.android.phone")
+                os.system("adb reboot")
+                time.sleep(120)
+                Networkreset()
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("MAI TEST"):
+                    vc.dump()
+                    if vc.findViewById("android:id/button1"): 
+                        vc.dump()
+                        time.sleep(1)
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        Network()
+                        Call()    
+                        SMS()   
+                        wb1.save('report.xls')
+                    else:
+                        print("")
+                    
+
+                else:
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        Setting()
+                        refresh()
+                        Call()    
+                        SMS()   
+                        wb1.save('report.xls')
+                    else:
+                        print(sendCommand("AT+CFUN=0"))
+                        time.sleep(3)
+                        print(sendCommand("AT+CFUN=1"))
+                        time.sleep(3)
+                        print(sendCommand("AT+CFUN=1,1"))
+                        check()
+                        os.system("adb shell cmd statusbar collapse")
+                        if String==str("3G") or combine==str("No signal") or sets==str("4G No signal"):
+                            Network()          
+                            Call()    
+                            SMS()   
+                            wb1.save('report.xls')
+                        else:
+                            time.sleep(45)
+                            Network()        
+                            Call()    
+                            SMS()   
+                            wb1.save('report.xls')
+
+            try:
+                filx.close()
+                t3=threading.Thread(target=kill_server)
+                t3.start()
+                t4=threading.Thread(target=start_server)
+                t4.start() 
+                t1.join()
+                t2.join()
+                t3.join()
+                t4.join()   
+                file.close()
+                filem.close()
+                os.rename('logcat.txt',PLMN + 'logcat.txt')
+                os.rename('ril.txt',PLMN +'ril.txt')
+                adir=os.getcwd() + "\\" + PLMN + "logcat.txt"
+                final=adir.replace("']", "")
+                finals=final.replace("['","")
+                finalz=finals.replace("\\","/")
+
+                cwd1=os.getcwd()+'/Devicelogs/'
+                final1=cwd1.replace("']", "")
+                finalss=final1.replace("['","")
+                finalze=finalss.replace("\\","/")
+                z=finalze+PLMN+ "logcat.txt"
+
+                adir1=os.getcwd() + "\\" + PLMN + "ril.txt"
+                final2=adir1.replace("']", "")
+                finals3=final2.replace("['","")
+                finalz4=finals3.replace("\\","/")
+
+                cwd5=os.getcwd()+'/Devicelogs/'
+                final6=cwd5.replace("']", "")
+                finalss7=final6.replace("['","")
+                finalze8=finalss7.replace("\\","/")
+                z6=finalze8+PLMN+ "ril.txt"
+
+                shutil.move(finalz ,z)
+                shutil.move(finalz4 ,z6)
+            
+            except Exception as ex:
+                print(ex)
+            
+
+        elif "755" not in PLMN:
+            mccmnc=imsi[:6]
+            print("6 digit imsi")
+            inewstrg=imsi[6:]
+            ninISDN=int("+917" + inewstrg)
+            ISDN="+" + str(ninISDN)
+            print(ISDN)
+            print(sendCommand("AT^logport=0"))
+            time.sleep(1)
+            print(sendCommand("AT^Modem=1"))
+            time.sleep(1)
+           
+            command3='com::send {at+csim=14,"00A40004026FAD";}\n'
+            command4='com::send {at+csim=10,"00B000000B";}\n'
+            command5='com::send {at+csim=18,"00D600000400000103";}\n'
+            command6='com::send {at+csim=14,"00A40004026F07";}\n'
+            command7='com::send {at+csim=10,"00B000000B";}\n'
+            command8='com::send {at+csim=28,"00D600000908'
+            command8+=reverse('9'+PLMN)
+            command8+='";}\n'
+            commandList=[]
+           # commandList.append(command1)
+           # commandList.append('com::recv OK\n')
+           # commandList.append(command2)
+           # commandList.append('com::recv OK\n')
+            commandList.append('com::send {at+csim=14,"00A40004023F00";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append('com::send {at+csim=14,"00A40004027FF0";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append('com::send {at+csim=26,"0020000A083030303030303030";}\n')
+            commandList.append('com::recv OK\n')
+            commandList.append(command3)
+            commandList.append('com::recv OK\n')
+                        #commandList.append(command2)
+                        #commandList.append('com::recv OK\n')
+            commandList.append(command5)
+            commandList.append('com::recv OK\n')  
+            commandList.append(command6)
+            commandList.append('com::recv OK\n')
+                        #commandList.append(command5)
+                        #commandList.append('com::recv OK\n')
+            commandList.append(command8)
+            commandList.append('com::recv OK\n')
+            file_object=open("script\csim.tcl","w")
+            file_object.writelines(commandList)
+            file_object.close()
+
+            os.system("ATTv1.05.exe")
+            time.sleep(10)
+            fmod=open("script\csim.log","r")
+            lineIn=fmod.readlines()
+            for strIn in lineIn:
+                strIn=strIn.strip("\n")
+                if strIn.find("ERROR")>0:
+                    print "\n"
+                    print "executeATTScript failed."
+                    fmod.close()
+            fmod.close()
+            filx=open("log.txt", "r")
+            linez= filx.read()
+            if str("fail: 1") in linez:
+                sheet1.write(j,0,PLMN)
+                sheet1.write(j,1,"FAIL to write IMSI")
+                sheet1.write(j,2,"FAIL to write IMSI")
+                sheet1.write(j,3,"FAIL to write IMSI")
+                wb1.save('report.xls')
+
+            elif str("pass") in linez:
+                os.system("adb shell pm clear com.android.phone")
+                os.system("adb reboot")
+                time.sleep(120)
+                Networkreset()
+                from com.dtmilano.android.viewclient import ViewClient
+                device, serialno=ViewClient.connectToDeviceOrExit()
+                vc=ViewClient(device=device, serialno=serialno)
+                if vc.findViewWithText("MAI TEST"):
+                    vc.dump()
+                    if vc.findViewById("android:id/button1"): 
+                        vc.dump()
+                        time.sleep(1)
+                        vc.findViewById("android:id/button1").touch()
+                        vc.dump()
+                        Network()
+                        Call()    
+                        SMS()   
+                        wb1.save('report.xls')
+                        
+                    else:
+                        print("")
+
+                else:
+                    check()
+                    os.system("adb shell cmd statusbar collapse")
+                    if gets==str("4G Signal") or String==str("LTE Signal") or String==str("4G"):
+                        Setting()
+                        refresh()
+                        Call()    
+                        SMS()   
+                        wb1.save('report.xls')
+                        
+                    else:
+                        print(sendCommand("AT+CFUN=0"))
+                        time.sleep(3)
+                        print(sendCommand("AT+CFUN=1"))
+                        time.sleep(3)
+                        print(sendCommand("AT+CFUN=1,1"))
+                        check()
+                        os.system("adb shell cmd statusbar collapse")
+                        if String==str("3G") or combine==str("No signal") or sets==str("4G No signal"):
+                            Network()          
+                            Call()    
+                            SMS()   
+                            wb1.save('report.xls')
+                        else:
+                            time.sleep(45)
+                            Network()        
+                            Call()    
+                            SMS()   
+                            wb1.save('report.xls')
+
+            try:        
+                filx.close()
+                t3=threading.Thread(target=kill_server)
+                t3.start()
+                t4=threading.Thread(target=start_server)
+                t4.start()
+                
+                t1.join()
+                t2.join()
+                t3.join()
+                t4.join()
+                file.close()
+                filem.close()
+                os.rename('logcat.txt',PLMN +'logcat.txt')
+                os.rename('ril.txt',PLMN +'ril.txt')
+                adir=os.getcwd() + "\\" + PLMN + "logcat.txt"
+                final=adir.replace("']", "")
+                finals=final.replace("['","")
+                finalz=finals.replace("\\","/")
+
+                cwd1=os.getcwd()+'/Devicelogs/'
+                final1=cwd1.replace("']", "")
+                finalss=final1.replace("['","")
+                finalze=finalss.replace("\\","/")
+                z=finalze+PLMN+ "logcat.txt"
+
+                adir1=os.getcwd() + "\\" + PLMN + "ril.txt"
+                final2=adir1.replace("']", "")
+                finals3=final2.replace("['","")
+                finalz4=finals3.replace("\\","/")
+
+                cwd5=os.getcwd()+'/Devicelogs/'
+                final6=cwd5.replace("']", "")
+                finalss7=final6.replace("['","")
+                finalze8=finalss7.replace("\\","/")
+                z6=finalze8+PLMN+ "ril.txt"
+
+                shutil.move(finalz ,z)
+                shutil.move(finalz4 ,z6)
+            except Exception as ex:
+                print(ex)
+            
+except Exception as ex:
+    print(ex)
